@@ -1,14 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace Webly.Model.Entity;
 
-public class AccountEntity
+public class AccountEntity : IdentityUser
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-    public string UserName { get; set; }
-    public string Password { get; set; }
-    public string Role { get; set; }
 }

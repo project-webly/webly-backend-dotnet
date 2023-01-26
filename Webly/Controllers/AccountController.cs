@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Webly.Model.Entity;
 
 namespace Webly.Controllers;
 
@@ -7,33 +9,32 @@ namespace Webly.Controllers;
 [ApiController]
 public class AccountController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly UserManager<AccountEntity> _userManager;
+    private readonly SignInManager<AccountEntity> _signInManager;
 
-    public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+    public AccountController(UserManager<AccountEntity> userManager, SignInManager<AccountEntity> signInManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
     }
     
     [HttpGet]
+    [Authorize]
     public IActionResult GetAccount()
     {
-        if (User.Identity.IsAuthenticated)
+        return Ok(new AccountDto()
         {
-            return Ok(new AccountDto()
-            {
-                UserName = User.Identity.Name
-            });
-        }
-
-        return Unauthorized();
+            UserName = User.Identity.Name
+        });
     }
 
     [HttpPost]
     public async Task<IActionResult> Register(RegisterDto dto)
     {
-        var user = new IdentityUser(dto.UserName);
+        var user = new AccountEntity()
+        {
+            UserName = dto.UserName
+        };
         var result = await _userManager.CreateAsync(user, dto.Password);
 
         if (result.Succeeded)
@@ -42,7 +43,7 @@ public class AccountController : ControllerBase
             return Ok();
         }
 
-        return BadRequest();
+        return BadRequest(result.Errors);
     }
 
     [HttpPost("logout")]
