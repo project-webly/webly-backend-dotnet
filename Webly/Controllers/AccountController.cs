@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Webly.Model.Entity;
+using Webly.Dtos;
+using Webly.Models.Entity;
 
 namespace Webly.Controllers;
 
-[Route("api/account")]
+[Route("/api/v1/account")]
 [ApiController]
 public class AccountController : ControllerBase
 {
@@ -62,22 +63,4 @@ public class AccountController : ControllerBase
 
         return Unauthorized();
     }
-}
-
-public class AccountDto
-{
-    public string UserName { get; init; }
-}
-
-public class RegisterDto
-{
-    public string UserName { get; init; }
-    
-    public string Password { get; init; }
-}
-
-public class LoginDto
-{
-    public string UserName { get; init; }
-    public string Password { get; init; }
 }

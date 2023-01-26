@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Webly.Model.Entity;
+namespace Webly.Models.Entity;
 
 public class AccountEntity : IdentityUser
 {

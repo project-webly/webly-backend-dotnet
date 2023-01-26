@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Webly.Model.Entity;
+using Webly.Models.Entity;
 
-namespace Webly.Model;
+namespace Webly.Models;
 
 public class ApplicationDbContext: IdentityDbContext<AccountEntity>
 {

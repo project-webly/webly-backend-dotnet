@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Webly.Model.Entity;
+namespace Webly.Models.Entity;
 
 public enum ProjectAccountType
 {
