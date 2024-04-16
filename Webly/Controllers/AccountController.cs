@@ -1,6 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Webly.Configurations;
 using Webly.Dtos;
 using Webly.Models.Entity;
 
@@ -12,11 +17,13 @@ public class AccountController : ControllerBase
 {
     private readonly UserManager<AccountEntity> _userManager;
     private readonly SignInManager<AccountEntity> _signInManager;
+    private readonly AppConfig _appConfig;
 
-    public AccountController(UserManager<AccountEntity> userManager, SignInManager<AccountEntity> signInManager)
+    public AccountController(UserManager<AccountEntity> userManager, SignInManager<AccountEntity> signInManager, AppConfig appConfig)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _appConfig = appConfig;
     }
     
     [HttpGet]
@@ -57,10 +64,33 @@ public class AccountController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
-        var result = await _signInManager.PasswordSignInAsync(dto.UserName, dto.Password, false, false);
-        if (result.Succeeded)
-            return Ok();
+        var user = await _userManager.FindByNameAsync(dto.UserName);
+        if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
+        {
+	        return Unauthorized();
+		}
 
-        return Unauthorized();
+        var claims = new List<Claim>
+        {
+	        new Claim(ClaimTypes.NameIdentifier, user.Id),
+	        new Claim(ClaimTypes.Name, user.UserName)
+        };
+
+
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appConfig.Secret));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+        var tokenDescriptor = new JwtSecurityToken(
+	        issuer: _appConfig.ValidIssuer,
+	        audience: _appConfig.ValidAudience,
+	        claims: claims,
+	        expires: DateTime.Now.AddMinutes(720),
+	        signingCredentials: credentials);
+
+        var jwt = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+
+        return Ok(new
+        {
+            AccessToken = jwt
+        });
     }
 }
